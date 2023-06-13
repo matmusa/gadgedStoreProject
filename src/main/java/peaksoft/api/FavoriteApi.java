@@ -1,7 +1,7 @@
 package peaksoft.api;
 
+import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import peaksoft.dto.response.ProductResponse;
 import peaksoft.dto.response.SimpleResponse;
@@ -15,21 +15,21 @@ import java.util.List;
 public class FavoriteApi {
     private final FavoriteService favoriteService;
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/{userId}/{productId}")
-    public SimpleResponse addProductToFavorite(@PathVariable Long userId, @PathVariable Long productId) {
-        return favoriteService.addProductToFavorite(userId, productId);
+    @PermitAll
+    @PostMapping("/{productId}")
+    public SimpleResponse addProductToFavorite(@PathVariable Long productId) {
+        return favoriteService.addProductToFavorite(productId);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("/{userId}/{productId}")
-    private SimpleResponse deleteProductFromFavorite(@PathVariable Long userId, @PathVariable Long productId) {
-        return favoriteService.deleteProductFromFavorite(userId, productId);
+    @PermitAll
+    @DeleteMapping("/{productId}")
+    private SimpleResponse deleteProductFromFavorite(@PathVariable Long productId) {
+        return favoriteService.deleteProductFromFavorite(productId);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/{userId}")
-    public List<ProductResponse> getAllProductFromFavoriteFromUser(@PathVariable Long userId) {
-        return favoriteService.getAllProductFromFavoriteFromUser(userId);
+    @PermitAll
+    @GetMapping()
+    public List<ProductResponse> getAllProductFromFavoriteFromUser() {
+        return favoriteService.getAllProductFromFavoriteFromUser();
     }
 }

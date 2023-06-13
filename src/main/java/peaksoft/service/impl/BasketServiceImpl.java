@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import peaksoft.config.JwtService;
+import peaksoft.dto.response.AllProductInformationResponse;
 import peaksoft.dto.response.ProductResponse;
 import peaksoft.dto.response.SimpleResponse;
 import peaksoft.entity.Basket;
@@ -27,53 +29,82 @@ public class BasketServiceImpl implements BasketService {
     private final BasketRepository basketRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final JwtService jwtService;
 
     @Override
-    public SimpleResponse addProductToUserBasket(Long userId, Long productId) {
-        Basket basket = new Basket();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with  id %s doesn't exist !", userId)));
+    public SimpleResponse addProductToUserBasket(Long productId) {
+        User user = jwtService.getAuthentication();
+        Basket basket = user.getBasket();
+
+        if (basket == null) {
+            basket = new Basket();
+            basket.setUser(user);
+            basket.setProducts(new ArrayList<>());
+        }
+
         Product product = productRepository.findById(productId).orElseThrow(() ->
-                new UsernameNotFoundException(String.format("Product  with id %s  doesn't exist !", productId)));
-        List<Product> products = new ArrayList<>();
+                new UsernameNotFoundException(String.format("Product with id %s doesn't exist!", productId)));
+
+        List<Product> products = basket.getProducts();
         products.add(product);
-        basket.setUser(user);
-        user.setBasket(basket);
-        basket.setProducts(products);
+
         basketRepository.save(basket);
         userRepository.save(user);
         productRepository.save(product);
+
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Product  with id %s successfully added User with if %s id basket ! ", product.getId(), user.getId()))
+                .message(String.format("Product with id %s successfully added to User with id %s basket!", product.getId(), user.getId()))
                 .build();
     }
 
+
     @Override
-    public SimpleResponse deleteProductFromUserBasKet(Long userId, Long productId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with  id %s doesn't exist !", userId)));
-        Basket basket = user.getBasket();
+    public SimpleResponse deleteProductFromUserBasKet(Long productId) {
+
+        User user1 = jwtService.getAuthentication();
+        Basket basket = user1.getBasket();
         List<Product> products = basket.getProducts();
-        boolean removed=products.removeIf(product -> product.getId().equals(productId));
-        if(removed){
+        boolean removed = products.removeIf(product -> product.getId().equals(productId));
+        if (removed) {
             basket.setProducts(products);
             basketRepository.save(basket);
 
             return SimpleResponse.builder()
                     .httpStatus(HttpStatus.OK)
-                    .message(String.format("Product with %s id successfully removed from user with id %s basket",productId,userId))
+                    .message(String.format("Product with %s id successfully removed from user with id %s basket", productId, user1.getId()))
                     .build();
         }
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
-                .message(String.format("Product with id %s not found !",productId))
+                .message(String.format("Product with id %s not found !", productId))
                 .build();
 
     }
 
     @Override
-    public List<ProductResponse> getAllInformationUserProduct(Long userId) {
-        return basketRepository.getAllProductsFromBasket(userId);
+    public List<ProductResponse> getAllInformationUserProduct() {
+        User user = jwtService.getAuthentication();
+        return basketRepository.getAllProductsUserId(user.getId());
+
+    }
+
+
+    @Override
+    public List<AllProductInformationResponse> allProductInformationResponse() {
+        User user = jwtService.getAuthentication();
+
+        AllProductInformationResponse allProductInformationResponse = AllProductInformationResponse.builder()
+                .productResponseList(basketRepository.getAllProductsUserId(user.getId()))
+                //.sum(basketRepository.sum(user.getId()))
+                .count(basketRepository.count(user.getId()))
+                .build();
+        List<AllProductInformationResponse> allProductInformationResponses = new ArrayList<>();
+        allProductInformationResponses.add(allProductInformationResponse);
+        return allProductInformationResponses;
     }
 }
+
+
+
+

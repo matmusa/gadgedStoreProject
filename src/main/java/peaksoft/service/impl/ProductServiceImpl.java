@@ -3,13 +3,17 @@ package peaksoft.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peaksoft.dto.request.ProductRequest;
 import peaksoft.dto.response.ProductGetAllInformation;
 import peaksoft.dto.response.ProductResponse;
 import peaksoft.dto.response.SimpleResponse;
+import peaksoft.entity.Brand;
 import peaksoft.entity.Product;
+import peaksoft.enums.Category;
+import peaksoft.repository.BrandRepository;
 import peaksoft.repository.ProductRepository;
 import peaksoft.service.ProductService;
 
@@ -22,10 +26,13 @@ import java.util.List;
 
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final BrandRepository brandRepository;
 
 
     @Override
-    public SimpleResponse saveProduct(ProductRequest productRequest) {
+    public SimpleResponse saveProduct(Long brandId,ProductRequest productRequest) {
+        Brand brand=brandRepository.findById(brandId).
+                orElseThrow(()->new UsernameNotFoundException("Brand with id"+brandId+" not found ! "));
         Product product = new Product();
         product.setName(productRequest.name());
         product.setImages(productRequest.images());
@@ -33,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productRequest.price());
         product.setCharacteristic(productRequest.characteristic());
         product.setIsFavorite(false);
+        product.setBrand(brand);
         productRepository.save(product);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
@@ -95,8 +103,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getProductsByFilter(String category, String ascOrDesc) {
-        return productRepository.getAllProductsByFilter(category, ascOrDesc);
+    public List<ProductResponse> getProductsByFilter(Category category, String sortOrder) {
+        return productRepository.getAllProductsByFilter(category, sortOrder);
     }
 
 

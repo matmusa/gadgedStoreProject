@@ -9,6 +9,7 @@ import peaksoft.dto.request.UserRequest;
 import peaksoft.dto.response.SimpleResponse;
 import peaksoft.dto.response.UserResponse;
 import peaksoft.entity.User;
+import peaksoft.enums.Role;
 import peaksoft.repository.UserRepository;
 import peaksoft.service.UserService;
 
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
                 .password(userRequest.password())
                 .createdDate(ZonedDateTime.now())
                 .updateDate(ZonedDateTime.now())
+                .role(Role.USER)
                 .build();
         userRepository.save(user);
         return SimpleResponse.builder()

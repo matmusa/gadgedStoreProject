@@ -8,15 +8,15 @@ import peaksoft.entity.Comment;
 
 import java.util.List;
 
-public interface CommentRepository extends JpaRepository<Comment,Long> {
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query("select new peaksoft.dto.response.CommentResponse(" +
             "c.id,c.comment,c.createdDate)from Comment  c join c.user cu where cu.id=:userId")
-    List<CommentResponse>getAllComments(@Param("userId")Long userId);
+    List<CommentResponse> getAllComments(@Param("userId") Long userId);
 
     @Query("select new peaksoft.dto.response.CommentResponse(" +
             "c.id,c.comment,c.createdDate)from Comment  c join c.user cu where cu.id=:userId and c.id=:commentId")
-    CommentResponse getAllCommentsById(@Param("userId")Long userId,@Param("commentId")Long commentId );
+    List<CommentResponse> getAllCommentsById(@Param("commentId") Long commentId);
 
 
 }

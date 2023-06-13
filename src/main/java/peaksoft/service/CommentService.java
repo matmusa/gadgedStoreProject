@@ -9,15 +9,14 @@ import java.util.List;
 public interface CommentService {
 
 
-    List<CommentResponse> getAllComments(Long userId);
+    List<CommentResponse> getAllComments();
 
-    SimpleResponse saveComment(Long userId,Long productId,CommentRequest commentRequest);
+    SimpleResponse saveComment(Long productId,CommentRequest commentRequest);
 
-    CommentResponse getCommentById(Long userId, Long commentId);
-
-    SimpleResponse updateComment(Long id,CommentRequest commentRequest);
+    SimpleResponse updateComment(Long commentId,CommentRequest commentRequest);
 
     SimpleResponse deleteComment(Long id);
+    List<CommentResponse> getAllCommentsById(Long id);
 
 
 

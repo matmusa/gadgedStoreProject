@@ -31,7 +31,9 @@ public class Basket {
             CascadeType.REFRESH,
             CascadeType.DETACH})
     private User user;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE,
+            CascadeType.REFRESH,
+            CascadeType.DETACH})
     private List<Product> products;
 
 

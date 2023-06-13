@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import peaksoft.config.JWTService;
+import peaksoft.config.JwtService;
 import peaksoft.dto.response.ProductResponse;
 import peaksoft.dto.response.SimpleResponse;
 import peaksoft.entity.Favorite;
@@ -28,16 +28,14 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    private final JWTService jwtService;
+    private final JwtService jwtService;
 
     @Override
-    public SimpleResponse addProductToFavorite(Long userId, Long productId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new UsernameNotFoundException(String.format("User with id %s doesn't exist ", userId)));
+    public SimpleResponse addProductToFavorite(Long productId) {
+       User user=jwtService.getAuthentication();
         Product product = productRepository.findById(productId).orElseThrow(() ->
                 new UsernameNotFoundException(String.format("Product with  id %s doesnt exist ", productId)));
-        User user1=jwtService.
-        List<Product> products = new ArrayList<>();
+        List<Product>products = new ArrayList<>();
         List<Favorite> favorites = new ArrayList<>();
         products.add(product);
         Favorite favorite = new Favorite();
@@ -45,8 +43,6 @@ public class FavoriteServiceImpl implements FavoriteService {
         product.setFavorite(favorite);
         user.setFavorites(favorites);
         favorite.setUser(user);
-        userRepository.save(user);
-        productRepository.save(product);
         favoriteRepository.save(favorite);
 
         return SimpleResponse.builder()
@@ -55,12 +51,10 @@ public class FavoriteServiceImpl implements FavoriteService {
                 .build();
     }
 
+
     @Override
-    public SimpleResponse deleteProductFromFavorite(Long userId, Long productId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new UsernameNotFoundException(String.format("User with id %s doesn't exist ", userId)));
-
-
+    public SimpleResponse deleteProductFromFavorite( Long productId) {
+        User user=jwtService.getAuthentication();
         List<Favorite> favorites = user.getFavorites();
         for (Favorite f : favorites
         ) {
@@ -69,11 +63,12 @@ public class FavoriteServiceImpl implements FavoriteService {
 
                 if (removed) {
                     f.setProduct(products);
+                    favoriteRepository.delete(f);
                     favoriteRepository.save(f);
 
                 return SimpleResponse.builder()
                         .httpStatus(HttpStatus.OK)
-                        .message(String.format(""))
+                        .message(String.format("Product with id %s successfully removed !",productId))
                         .build();
 
             }
@@ -85,8 +80,11 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     }
 
+
+
     @Override
-    public List<ProductResponse> getAllProductFromFavoriteFromUser(Long userId) {
-        return favoriteRepository.getAllProducts(userId);
+    public List<ProductResponse> getAllProductFromFavoriteFromUser() {
+        User user=jwtService.getAuthentication();
+        return favoriteRepository.getAllProducts(user.getId());
     }
 }

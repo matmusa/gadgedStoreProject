@@ -17,12 +17,12 @@ public class AuthenticationApi {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/signUp")
-    AuthenticationResponse signUp(SignUpRequest signUpRequest) {
-      return   authenticationService.signUp(signUpRequest);
+    public AuthenticationResponse signUp(@RequestBody SignUpRequest signUpRequest) {
+        return authenticationService.signUp(signUpRequest);
     }
-    @PostMapping("/s")
-    AuthenticationResponse signIn(@RequestBody SignInRequest signInRequest){
-        System.out.println("hjkl");
+
+    @PostMapping("/signIn")
+    public AuthenticationResponse signIn(@RequestBody SignInRequest signInRequest) {
         return authenticationService.signIn(signInRequest);
     }
 

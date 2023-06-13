@@ -1,17 +1,17 @@
 package peaksoft.service;
 
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import peaksoft.dto.request.ProductRequest;
 import peaksoft.dto.response.ProductGetAllInformation;
 import peaksoft.dto.response.ProductResponse;
 import peaksoft.dto.response.SimpleResponse;
+import peaksoft.enums.Category;
 
 import java.util.List;
 
 public interface ProductService {
 
 
-    SimpleResponse saveProduct(ProductRequest productRequest);
+    SimpleResponse saveProduct(Long brandId,ProductRequest productRequest);
 
     ProductResponse getProductById(Long id);
 
@@ -21,6 +21,6 @@ public interface ProductService {
 
     ProductGetAllInformation getAllInformationFromProduct(Long id);
 
-    List<ProductResponse>getProductsByFilter(String category,String ascOrDesc);
+    List<ProductResponse>getProductsByFilter(Category category, String sortOrder);
 
 }

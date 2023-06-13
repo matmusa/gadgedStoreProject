@@ -9,6 +9,7 @@ import peaksoft.dto.request.ProductRequest;
 import peaksoft.dto.response.ProductGetAllInformation;
 import peaksoft.dto.response.ProductResponse;
 import peaksoft.dto.response.SimpleResponse;
+import peaksoft.enums.Category;
 import peaksoft.service.ProductService;
 
 import java.util.List;
@@ -27,9 +28,9 @@ public class ProductApi {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping
-    public SimpleResponse saveProduct(@RequestBody ProductRequest productRequest) {
-        return productService.saveProduct(productRequest);
+    @PostMapping("/{brandId}")
+    public SimpleResponse saveProduct(@PathVariable Long brandId,@RequestBody ProductRequest productRequest) {
+        return productService.saveProduct(brandId,productRequest);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -50,10 +51,11 @@ public class ProductApi {
         return productService.getAllInformationFromProduct(id);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+   @PermitAll
     @GetMapping("/filter")
     public List<ProductResponse> getProductsByFilter(@RequestParam String category, @RequestParam String ascOrDesc) {
-        return productService.getProductsByFilter(category, ascOrDesc);
+       Category productCategory = Category.valueOf(category);
+       return productService.getProductsByFilter(productCategory, ascOrDesc);
     }
 
 

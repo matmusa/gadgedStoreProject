@@ -36,20 +36,20 @@ public class BrandServiceImpl implements BrandService {
         brandRepository.save(brand);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Brand with name %s successfully saved!"))
+                .message(String.format("Brand with name %s successfully saved!",brand.getBrandName()))
                 .build();
     }
 
     @Override
     public BrandResponse getBrandById(Long id) {
         return brandRepository.getBrandById(id)
-                .orElseThrow(()->new NullPointerException(String.format("Brand with doesn't exist",id)));
+                .orElseThrow(()->new NullPointerException(String.format("Brand with id %s  doesn't exist",id)));
     }
 
     @Override
     public SimpleResponse updateBrandById(Long id, BrandRequest brandRequest) {
         Brand brand=brandRepository.findById(id)
-                .orElseThrow(()->new UsernameNotFoundException(String.format("User with id doesn't exist !",id)));
+                .orElseThrow(()->new UsernameNotFoundException(String.format("User with id %s  doesn't exist !",id)));
         brand.setBrandName(brandRequest.brandName());
         brand.setImage(brandRequest.image());
         brandRepository.save(brand);
@@ -63,7 +63,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public SimpleResponse deleteBrandById(Long id) {
         Brand brand=brandRepository.findById(id)
-                .orElseThrow(()->new UsernameNotFoundException(String.format("User with id doesn't exist !",id)));
+                .orElseThrow(()->new UsernameNotFoundException(String.format("User with id %s  doesn't exist !",id)));
         brandRepository.delete(brand);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)

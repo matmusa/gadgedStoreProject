@@ -35,9 +35,8 @@ public class Favorite {
     private User user;
     @OneToMany(mappedBy = "favorite",
             cascade = {CascadeType.DETACH,
-                    CascadeType.MERGE,
-                    CascadeType.REFRESH,
-                    CascadeType.PERSIST})
+                   //  CascadeType.MERGE,
+                    CascadeType.REFRESH)
     private List<Product> product;
 
 
